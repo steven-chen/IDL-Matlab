@@ -1,8 +1,8 @@
 %
 close all; clear all; clc;
 boundary = 0.5;
-%AP = [1,1;1,-1;-1,-1;-1,1]*2;
-AP = [2,1;2,-1;-2,-1;-2,1]*2;
+AP = [1,1;1,-1;-1,-1;-1,1]*10;
+%AP = [2,1;2,-1;-2,-1;-2,1]*2;
 %AP = [1,1;1,-1;-sqrt(3)+1,0;]*2;
 %AP = [2,2;2,-2;-2*sqrt(3)+2,0;1,1;1,-1;-sqrt(3)+1,0];
 %polyarea(AP(:,1),AP(:,2));
@@ -20,8 +20,8 @@ set(h,'facealpha',.1);
 set(h,'edgealpha',1);
 
 t = (0:1/32:1)'*2*pi;
-x = 0.7*sin(t)+0.5;
-y = 0.7*cos(t);
+x = 2.7*sin(t)+5;
+y = 2.7*cos(t);
 
 plot(x,y,'-r');
 axis equal;
@@ -34,8 +34,8 @@ for i = 1:length(AP)
 end
 % figure; 
 % plot(rssi)
-noise = 0.04*randn(length(x),length(AP));
-rssi_noise = 0.8*(rssi+noise);
+noise = 0.0000004*randn(length(x),length(AP));
+rssi_noise = 1*(rssi+noise);
 
 for i = 1:length(x)
 %for i = 1:1    
@@ -76,3 +76,5 @@ figure;
 plot(rssi);
 hold on;
 plot(rssi+noise);
+R=rssi+noise;
+R = 20*log10(1./R);
