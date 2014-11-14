@@ -1,4 +1,6 @@
+%hidematlab;
 close all; clear all; clc;
+
 global AP;
 global E;
 global RSSI_mem;
@@ -37,7 +39,13 @@ max_x = max(AP(:,1));
 min_y = min(AP(:,2));
 max_y = max(AP(:,2));
 
-figure('name','IDL','NumberTitle','off','Color','w','position',[500 60 600 600]); hold on;
+hf = figure('name','IDL','NumberTitle','off','Color','w','position',[500 60 600 600]); hold on;
+warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+jframe=get(hf,'javaframe');
+jIcon=javax.swing.ImageIcon('C:\Program Files\MATLAB\R2012a\toolbox\simulink\simulink\blockdiagramicon.gif');
+jframe.setFigureIcon(jIcon);
+set(hf, 'menubar', 'none');
+
 %axis([min_x-B,max_x+B,min_y-B,max_y+B]);
 % ax1 = gca;
 % set(ax1,'box','off');
@@ -67,8 +75,8 @@ p = plot(0,0,'bo','MarkerFaceColor','b','EraseMode','normal','MarkerSize',10);
 %p = plot(0,0,'bo','MarkerFaceColor','b','EraseMode','background','MarkerSize',10);
 pt_str = sprintf('   (%d,%d)',0,0);
 pt = text(0,0,pt_str);
-ptime_str = sprintf('%d年%d月%d日%d时%d分%d秒',fix(clock));
-ptime = text(-10,-10,ptime_str);
+%ptime_str = sprintf('%d年%d月%d日%d时%d分%d秒',fix(clock));
+%ptime = text(-10,-10,ptime_str);
 
 %{
 x = 1:10;
@@ -98,12 +106,19 @@ set(s,'BaudRate',38400,'DataBits',8,'StopBits',1,...
   
 s.BytesAvailableFcnMode = 'terminator'; % byte number or terminator  
 s.BytesAvailableFcn = {@serial_callback,p,pt};   % {@mycallback,time}  
-  
-fopen(s); 
 
-
-
+for i = 1:20
+try
+   fopen(s); 
+catch err
+   disp(err.message);
+   pause(1)
+   disp('--- Wait Serial Port ---');
+end
+end
+disp('--- Start Serial Port ---');
 pause(60);
-disp('--- close serial port ---');
+disp('--- Close Serial Port ---');
 snew = instrfind;
 fclose(snew);
+%exit;
