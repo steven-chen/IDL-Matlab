@@ -8,24 +8,29 @@ global Packet_number;
 global R;
 global Ref_Rssi0;
 global Ref_Distance0;
+global hc;
+hc = zeros(1,4);
 RD = load('R.mat');
 R = RD.R;
 Packet_number = 0;
 %%-----------------------------------------
 % Define the AP location
-D = 10; % Define distance between AP
+D = 0.5; % Define distance between AP
 AP = [1,1;1,-1;-1,-1;-1,1]*D;
 %AP = [1,1;1,-1;-sqrt(3)+1,0;]*D;
 M = length(AP);
 RSSI_mem = zeros(M,3); %column 1: SN; column 2: update; colunm 3: value
-RSSI_mem(:,1) = [11;22;33;44]; % SerialNumber for AP
-
+RSSI_mem(:,1) = [1;2;3;4]; % SerialNumber for AP
+% SN3: 1m -66, 4m -72 -58  -82
+% SN1: 1m -74, 4m -74 -55  -87
+% SN2: 1m -62, 4m -74 -56  -80
+% SN4: 1m -70, 4m -70 -58  -78
 %%-----------------------------------------
 % Cal the enviroment parameter E: RSSI1-RSSI0 = -10*E*log(D1/D0)
-Ref_Distance0 = 1;   %Reference0 m
-Ref_Rssi0     = 0; %Reference0 RSSI
-Ref_Distance1 = 10;  %Reference1 m
-Ref_Rssi1     = -20; %Reference1 RSSI
+Ref_Distance0 = 0.5;   %Reference0 m
+Ref_Rssi0     = -56; %Reference0 RSSI
+Ref_Distance1 = 2;  %Reference1 m
+Ref_Rssi1     = -81; %Reference1 RSSI
 E = -(Ref_Rssi1-Ref_Rssi0)/10/log10(Ref_Distance1/Ref_Distance0);
 
 
@@ -42,9 +47,10 @@ max_y = max(AP(:,2));
 hf = figure('name','IDL','NumberTitle','off','Color','w','position',[500 60 600 600]); hold on;
 warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 jframe=get(hf,'javaframe');
-jIcon=javax.swing.ImageIcon('C:\Program Files\MATLAB\R2012a\toolbox\simulink\simulink\blockdiagramicon.gif');
+%jIcon=javax.swing.ImageIcon('C:\Program Files\MATLAB\R2013b\toolbox\simulink\simulink\blockdiagramicon.gif');
+jIcon=javax.swing.ImageIcon('webicon.png');
 jframe.setFigureIcon(jIcon);
-set(hf, 'menubar', 'none');
+%set(hf, 'menubar', 'none');
 
 %axis([min_x-B,max_x+B,min_y-B,max_y+B]);
 % ax1 = gca;
@@ -64,6 +70,8 @@ xlabel('m');
 ylabel('m');
 title('Estimated Position');
 axis square;
+
+axis([min_x,max_x,min_y,max_y]);
 %axis equal; 
 
 
@@ -100,25 +108,30 @@ end
 
 %%-------------------------------------
 % Open serial port
-s = serial('COM8');     % creat serial port obj  
-set(s,'BaudRate',38400,'DataBits',8,'StopBits',1,...  
+
+s = serial('COM9');     % creat serial port obj 
+set(s,'BaudRate',57600,'DataBits',8,'StopBits',1,...  
     'Parity','none','FlowControl','none');  % set properties for serial  
   
-s.BytesAvailableFcnMode = 'terminator'; % byte number or terminator  
+%s.BytesAvailableFcnMode = 'terminator'; % byte number or terminator  
+s.BytesAvailableFcnMode ='byte'; % byte number or terminator  
+s.BytesAvailableFcnCount = 9; % byte number or terminator  
 s.BytesAvailableFcn = {@serial_callback,p,pt};   % {@mycallback,time}  
 
-for i = 1:20
+for i = 1:60
 try
    fopen(s); 
+   break;
 catch err
    disp(err.message);
    pause(1)
    disp('--- Wait Serial Port ---');
 end
+   
 end
 disp('--- Start Serial Port ---');
-pause(60);
-disp('--- Close Serial Port ---');
-snew = instrfind;
-fclose(snew);
-%exit;
+% pause(6);
+% disp('--- Close Serial Port ---');
+% snew = instrfind;
+% fclose(snew);
+% exit;

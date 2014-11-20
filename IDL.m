@@ -34,7 +34,7 @@ for i = 1:length(AP)
 end
 % figure; 
 % plot(rssi)
-noise = 0.0000004*randn(length(x),length(AP));
+noise = 0.08*randn(length(x),length(AP));
 rssi_noise = 1*(rssi+noise);
 
 for i = 1:length(x)
